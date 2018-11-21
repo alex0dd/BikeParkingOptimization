@@ -1,24 +1,32 @@
+function createVector(n){
+    return new Array(n).fill(0);
+}
+
 function createMatrix(m, n) {
-    return Array.from({length: m}, () => new Array(n).fill(0));
+    return Array.from({length: m}, () => createVector(n));
 };
+
+function createTensor(t, m, n) {
+    return Array.from({length: t}, () => createMatrix(m, n));
+}
   
 
 class LocationMap {
     constructor(bounds) {
         this.bounds = bounds;
-        this.mapMatrix = createMatrix(bounds.y, bounds.x);
-        this.highestPopulation = 0;
+        this.mapTensor = createTensor(bounds.t, bounds.y, bounds.x);
+        this.highestPopulation = createVector(bounds.t);
     }
-    setPopulationAt(i, j, population) {
-        this.mapMatrix[i][j] = population;
+    setPopulationAt(t, i, j, population) {
+        this.mapTensor[t][i][j] = population;
         // Update the highest population statistic
-        if(this.mapMatrix[i][j] > this.highestPopulation) this.highestPopulation = population;
+        if(this.mapTensor[t][i][j] > this.highestPopulation[t]) this.highestPopulation[t] = population;
     }
-    getPopulationAt(i, j){
-        return this.mapMatrix[i][j];
+    getPopulationAt(t, i, j){
+        return this.mapTensor[t][i][j];
     }
-    getHighestPopulation(){
-        return this.highestPopulation;
+    getHighestPopulation(t){
+        return this.highestPopulation[t];
     }
 }
 
