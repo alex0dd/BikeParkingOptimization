@@ -1,4 +1,4 @@
-class CoordinateProvider {
+export default class CoordinateProvider {
     constructor(initialLocation, spacing) {
         this.initialLocation = { latitude: initialLocation[0], longitude: initialLocation[1] };
         this.spacing = spacing;

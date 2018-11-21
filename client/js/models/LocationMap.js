@@ -1,17 +1,6 @@
-function createVector(n){
-    return new Array(n).fill(0);
-}
+import {createVector, createTensor} from '../utilities/MathUtils.js';
 
-function createMatrix(m, n) {
-    return Array.from({length: m}, () => createVector(n));
-};
-
-function createTensor(t, m, n) {
-    return Array.from({length: t}, () => createMatrix(m, n));
-}
-  
-
-class LocationMap {
+export default class LocationMap {
     constructor(bounds) {
         this.bounds = bounds;
         this.mapTensor = createTensor(bounds.t, bounds.y, bounds.x);
