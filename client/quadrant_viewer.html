@@ -11,11 +11,28 @@
     </head>
     <style>
     #mapid { height: 720px; }
+    .slidecontainer {
+        width: 100%;
+    }
+
+    .slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 25px;
+        background: #d3d3d3;
+        outline: none;
+        opacity: 0.7;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+        margin: 0;
+    }
     </style>
     <body>
         <div id="mapid"></div>
         <div id="debug"></div>
-        <input id="timeSlider" type="range" min="0" max="100" value="0">
+        <div class="slidecontainer">
+            <input id="timeSlider" class="slider" type="range" min="0" max="100" value="0">
+        </div>
         <script>
             /*
             Visualization parameters
@@ -88,7 +105,7 @@
                 renderMap(map, newTimeValue, boundX, boundY, boundT, coordProvider, locationMap);
             });
 
-            //debugDiv.innerText = "Loading data";                        
+            debugDiv.innerText = "Current time: "+0;                        
             map.on('click', function(e) {
                 debugDiv.innerText = "Clicked on: "+e.latlng.lat+", "+e.latlng.lng;
             });
