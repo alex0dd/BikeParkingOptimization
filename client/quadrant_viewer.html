@@ -38,13 +38,11 @@
             Visualization parameters
             */
             const RandomNumber = (minimum, maximum) => Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
-            const boundT = 60;
-            const boundX = 30;
-            const boundY = 30;
+            const bounds = {t: 60, x: 30, y: 30}; //We will use these bounds approx in the final application {t: 1440, x: 80, y: 80} 
             var initialLocation = [44.484443, 11.325102];//[44.49381, 11.33875]; // Bologna is latitude=44.49381, longitude=11.33875
             var squareLength = 100; // 100 meters
             var coordProvider = new CoordinateProvider(initialLocation, squareLength);
-            var locationMap = new LocationMap({t: boundT, x: boundX, y: boundY});
+            var locationMap = new LocationMap(bounds);
 
             // Map renderer
             function renderMap(map, time, boundX, boundY, boundT, coordProvider, locationMap){
@@ -67,7 +65,6 @@
                         }).bindPopup(locationMap.getPopulationAt(t, i, j)+"").addTo(map);
                     }
                 }
-                console.log("Redrawn");
             }
 
             /*
@@ -85,9 +82,9 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(map);
             
             // Generate random population data
-            for(var t = 0; t < boundT; t++)
-                for(var i = 0; i < boundY; i++) 
-                    for(var j = 0; j < boundX; j++) 
+            for(var t = 0; t < bounds.t; t++)
+                for(var i = 0; i < bounds.y; i++) 
+                    for(var j = 0; j < bounds.x; j++) 
                         locationMap.setPopulationAt(t, i, j, RandomNumber(0, 100));
             /*
             Components
@@ -96,13 +93,12 @@
             var timeSlider = document.getElementById('timeSlider');
             timeSlider.value = 0;
             timeSlider.min = 0;
-            timeSlider.max = boundT - 1;
+            timeSlider.max = bounds.t - 1;
             timeSlider.addEventListener('input', (e)=>{
                 var newTimeValue = e.target.value;
                 debugDiv.innerText = "Current time: "+newTimeValue;
                 map.clearShapeLayers();
-                console.log("Cleared map");
-                renderMap(map, newTimeValue, boundX, boundY, boundT, coordProvider, locationMap);
+                renderMap(map, newTimeValue, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
             });
 
             debugDiv.innerText = "Current time: "+0;                        
@@ -110,7 +106,7 @@
                 debugDiv.innerText = "Clicked on: "+e.latlng.lat+", "+e.latlng.lng;
             });
             // Render initial map for t=0
-            renderMap(map, 0, boundX, boundY, boundT, coordProvider, locationMap);
+            renderMap(map, 0, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
         </script>
     </body>
 </html>
