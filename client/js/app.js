@@ -21,6 +21,12 @@ L.Map.include({
             // if it's a shape layer
             if (!(layer instanceof L.TileLayer)) this.removeLayer(layer);
         }, this);
+    },
+    'redrawShapeLayers': function () {
+        this.eachLayer(function (layer) {
+            // if it's a shape layer
+            if (!(layer instanceof L.TileLayer)) {layer._redraw();}
+        }, this);
     }
 });
 // preferCanvas makes all points render in a canvas, avoiding to create a DOM element for each point, making the rendering faster
@@ -83,6 +89,7 @@ timeSlider.addEventListener('input', (e)=>{
     map.clearShapeLayers();
     renderMap(map, newTimeValue, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
     renderPopulationChart(populationBarGraph, locationMap, newTimeValue);
+    map.redrawShapeLayers();
 });
 
 debugDiv.innerText = "Current time: "+0;                        
