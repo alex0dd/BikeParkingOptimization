@@ -1,6 +1,6 @@
 import LocationMap from './models/LocationMap.js';
 import CoordinateProvider from './services/CoordinateProvider.js';
-import { renderMap } from './core/Visualization.js';
+import { renderMap, renderPopulationChart } from './core/Visualization.js';
 import { randomNumber } from './utilities/MathUtils.js';
 /*
 Visualization parameters
@@ -14,7 +14,9 @@ var locationMap = new LocationMap(bounds);
 /*
 Map related
 */
-L.Map.include({'clearShapeLayers': function () {
+var a = null;
+L.Map.include({
+    'clearShapeLayers': function () {
         this.eachLayer(function (layer) {
             // if it's a shape layer
             if (!(layer instanceof L.TileLayer)) this.removeLayer(layer);
@@ -24,7 +26,44 @@ L.Map.include({'clearShapeLayers': function () {
 // preferCanvas makes all points render in a canvas, avoiding to create a DOM element for each point, making the rendering faster
 var map = L.map('mapid', {preferCanvas: true}).setView(initialLocation, 18);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(map);
+map.setZoom(14);
 
+// population chart
+var populationBarChartContainer = document.getElementById('populationBarChart');
+// we create an empty initial dataset, because later we'll just update it, so it is needed to prevent empty dataset error
+var emptyDataset = new vis.DataSet();
+emptyDataset.add({x: 0, y: 0, z: 0, style: 0});
+var populationChartOptions = {
+    width: "100%",
+    height: '600px',
+    style: "bar-color",
+    showPerspective: true,
+    showGrid: true,
+    showShadow: false,
+    // Option tooltip can be true, false, or a function returning a string with HTML contents
+    tooltip: function (point) {
+        // parameter point contains properties x, y, z, and data
+        // data is the original object passed to the point constructor
+        return 'Population: <b>' + point.z + '</b>';
+    },
+    // Tooltip default styling can be overridden
+    tooltipStyle: {
+        content: {
+            background: 'rgba(255, 255, 255, 0.7)',
+            padding: '10px',
+            borderRadius: '10px'
+        },
+        line: {
+            borderLeft: '1px dotted rgba(0, 0, 0, 0.5)'
+        },
+        dot: {
+            border: '5px solid rgba(0, 0, 0, 0.5)'
+        }
+    },
+    keepAspectRatio: true,
+    verticalRatio: 0.5
+};
+var populationBarGraph = new vis.Graph3d(populationBarChartContainer, emptyDataset, populationChartOptions);
 // Generate random population data
 for(var t = 0; t < bounds.t; t++)
     for(var i = 0; i < bounds.y; i++) 
@@ -43,6 +82,7 @@ timeSlider.addEventListener('input', (e)=>{
     debugDiv.innerText = "Current time: "+newTimeValue;
     map.clearShapeLayers();
     renderMap(map, newTimeValue, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
+    renderPopulationChart(populationBarGraph, locationMap, newTimeValue);
 });
 
 debugDiv.innerText = "Current time: "+0;                        
@@ -51,3 +91,4 @@ map.on('click', function(e) {
 });
 // Render initial map for t=0
 renderMap(map, 0, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
+renderPopulationChart(populationBarGraph, locationMap, 0);

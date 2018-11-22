@@ -11,6 +11,9 @@ export default class LocationMap {
         // Update the highest population statistic
         if(this.mapTensor[t][i][j] > this.highestPopulation[t]) this.highestPopulation[t] = population;
     }
+    getBounds(){
+        return this.bounds;
+    }
     getPopulationAt(t, i, j){
         return this.mapTensor[t][i][j];
     }
