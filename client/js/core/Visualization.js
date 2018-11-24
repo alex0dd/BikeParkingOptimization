@@ -11,7 +11,8 @@ export function renderMap(map, time, boundX, boundY, boundT, coordProvider, loca
     for(var i = 0; i < boundY; i++){
         for(var j = 0; j < boundX; j++){
             var population = locationMap.getPopulationAt(t, i, j);
-            var colorWeight = (population/locationMap.getHighestPopulation(t))*0.9;
+            if(population > 0) var colorWeight = (population/locationMap.getHighestPopulation(t))*0.9;
+            else var colorWeight = 0.0;
             L.rectangle([coordProvider.elementAt(i, j), coordProvider.elementAt(i+1,j+1)],{
                 color: "#00000f", 
                 weight: 1.0, 
@@ -30,8 +31,13 @@ export function renderPopulationChart(graph, locationMap, currentTime) {
         for (var y = 0; y < bounds.y; y+=1) {
             var z = locationMap.getPopulationAt(currentTime, x, y);
             var population = locationMap.getPopulationAt(currentTime, x, y);
-            var colorWeight = (population/locationMap.getHighestPopulation(currentTime))*0.9;    
-            dataset.add({x:x, y:y, z: z, style: "#"+rgbToHex(0, 255*colorWeight, 0)});
+            if(population > 0){
+                var colorWeight = (population/locationMap.getHighestPopulation(currentTime))*0.9;
+                dataset.add({x:x, y:y, z: z, style: "#"+rgbToHex(0, 255*colorWeight, 0)});
+            }
+            else{
+                dataset.add({x:x, y:y, z: z, style: "#"+rgbToHex(77, 77, 77)});
+            }
         }
     }
 

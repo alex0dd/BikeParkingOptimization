@@ -5,6 +5,7 @@ import { randomNumber } from './utilities/MathUtils.js';
 /*
 Visualization parameters
 */
+const randomData = false;
 const bounds = {t: 60, x: 30, y: 30}; //We will use these bounds approx in the final application {t: 1440, x: 80, y: 80} 
 var initialLocation = [44.484443, 11.325102];//[44.49381, 11.33875]; // Bologna is latitude=44.49381, longitude=11.33875
 var squareLength = 100; // 100 meters
@@ -70,11 +71,16 @@ var populationChartOptions = {
     verticalRatio: 0.5
 };
 var populationBarGraph = new vis.Graph3d(populationBarChartContainer, emptyDataset, populationChartOptions);
-// Generate random population data
-for(var t = 0; t < bounds.t; t++)
-    for(var i = 0; i < bounds.y; i++) 
-        for(var j = 0; j < bounds.x; j++) 
-            locationMap.setPopulationAt(t, i, j, randomNumber(0, 100));
+if(randomData){
+    // Generate random population data
+    for(var t = 0; t < bounds.t; t++)
+        for(var i = 0; i < bounds.y; i++) 
+            for(var j = 0; j < bounds.x; j++) 
+                locationMap.setPopulationAt(t, i, j, randomNumber(0, 100));
+}
+else{
+    
+}
 /*
 Components
 */
@@ -99,3 +105,20 @@ map.on('click', function(e) {
 // Render initial map for t=0
 renderMap(map, 0, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
 renderPopulationChart(populationBarGraph, locationMap, 0);
+
+if(!randomData){
+    fetch('./data/test_output.json').then((r)=>r.json()).then((response)=>{
+        var bounds = {t: response.map.length, y: response.bounds.y, x: response.bounds.x}
+        locationMap = new LocationMap(bounds);
+        for(var t = 0; t < bounds.t; t++)
+            for(var i = 0; i < bounds.y; i++) 
+                for(var j = 0; j < bounds.x; j++){
+                    var value = response.map[t][i][j].out_bikes;
+                    locationMap.setPopulationAt(t, i, j, value);
+                }
+        
+        timeSlider.max = bounds.t - 1;
+        renderMap(map, 0, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
+        renderPopulationChart(populationBarGraph, locationMap, 0);
+    });
+}
