@@ -24,8 +24,6 @@ class LocationMapCell:
 
 def serialize_cell(obj):
     if isinstance(obj, LocationMapCell):
-        if obj.in_bikes > 0 or obj.out_bikes > 0:
-            print(obj.in_bikes, obj.out_bikes)
         serial = obj.__dict__
         return serial
     else:
@@ -44,13 +42,7 @@ class LocationMap:
         """
         # if time is not already present and can insert another time index
         if time not in self.time_indices and len(self.time_indices) < self.bounds.t:
-            time_map = []
-            for i in range(self.bounds.y):
-                row = []
-                for j in range(self.bounds.x):
-                    # create an empty map cell
-                    row.append(LocationMapCell())
-                time_map.append(row)
+            time_map = {}
             self.map_tensor.append(time_map)
             self.time_indices.append(time)
 
@@ -58,7 +50,11 @@ class LocationMap:
         return self.bounds
 
     def get(self, t, y, x):
-        return self.map_tensor[t][y][x]
+        # We use a sparse index encoding to save space
+        new_index = "{}-{}".format(y, x)
+        if new_index not in self.map_tensor[t]:
+            self.map_tensor[t][new_index] = LocationMapCell()
+        return self.map_tensor[t][new_index]
 
     def to_json(self):
         return json.dumps({"bounds": {"t": self.bounds.t, "y": self.bounds.y, "x": self.bounds.x}, "map": self.map_tensor}, default=serialize_cell)

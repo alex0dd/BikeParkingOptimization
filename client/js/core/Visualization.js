@@ -29,8 +29,8 @@ export function renderPopulationChart(graph, locationMap, currentTime) {
     var bounds = locationMap.getBounds();
     for (var x = 0; x < bounds.x; x+=1) {
         for (var y = 0; y < bounds.y; y+=1) {
-            var z = locationMap.getPopulationAt(currentTime, x, y);
-            var population = locationMap.getPopulationAt(currentTime, x, y);
+            var z = locationMap.getPopulationAt(currentTime, y, x);
+            var population = locationMap.getPopulationAt(currentTime, y, x);
             if(population > 0){
                 var colorWeight = (population/locationMap.getHighestPopulation(currentTime))*0.9;
                 dataset.add({x:x, y:y, z: z, style: "#"+rgbToHex(0, 255*colorWeight, 0)});

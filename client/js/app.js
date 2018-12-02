@@ -6,7 +6,7 @@ import { randomNumber } from './utilities/MathUtils.js';
 Visualization parameters
 */
 const randomData = false;
-const bounds = {t: 60, x: 140, y: 115}; //We will use these bounds approx in the final application {t: 1440, x: 80, y: 80} 
+var bounds = {t: 60, x: 140, y: 115}; //We will use these bounds approx in the final application {t: 1440, x: 80, y: 80} 
 var initialLocation = [44.45216343349134, 11.255149841308594];//[44.49381, 11.33875]; // Bologna is latitude=44.49381, longitude=11.33875
 var squareLength = 100; // 100 meters
 var coordProvider = new CoordinateProvider(initialLocation, squareLength);
@@ -78,9 +78,6 @@ if(randomData){
             for(var j = 0; j < bounds.x; j++) 
                 locationMap.setPopulationAt(t, i, j, randomNumber(0, 100));
 }
-else{
-    
-}
 /*
 Components
 */
@@ -104,18 +101,27 @@ map.on('click', function(e) {
 });
 // Render initial map for t=0
 renderMap(map, 0, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
-renderPopulationChart(populationBarGraph, locationMap, 0);
+//renderPopulationChart(populationBarGraph, locationMap, 0);
 
 if(!randomData){
-    fetch('./data/test_output.json').then((r)=>r.json()).then((response)=>{
-        var bounds = {t: response.map.length, y: response.bounds.y, x: response.bounds.x}
+    
+    fetch('./data/output.json').then((r)=>r.json()).then(response=>{
+        bounds = {t: response.bounds.t, y: response.bounds.y, x: response.bounds.x};
+        var responseMap = response.map;
         locationMap = new LocationMap(bounds);
-        for(var t = 0; t < bounds.t; t++)
+        for(var t = 0; t < bounds.t; t++){
+            for(var item in responseMap[t]){
+                var value = responseMap[t][item].out_bikes;
+                var yx = item.split("-");
+                locationMap.setPopulationAt(t, yx[0], yx[1], value);
+            }
+        }
+        /*for(var t = 0; t < bounds.t; t++)
             for(var i = 0; i < bounds.y; i++) 
                 for(var j = 0; j < bounds.x; j++){
                     var value = response.map[t][i][j].out_bikes;
                     locationMap.setPopulationAt(t, i, j, value);
-                }
+                }*/
         
         timeSlider.max = bounds.t - 1;
         renderMap(map, 0, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);

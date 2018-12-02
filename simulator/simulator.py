@@ -3,7 +3,7 @@ from structures import LocationMap, LocationMapBounds
 import pandas as pd
 import datetime
 
-simulation_time = 60
+simulation_time = 60*3 # 3 hours
 map_bounds = LocationMapBounds(t=simulation_time, x=140, y=115)
 spacing = 100 # 100 meters
 initial_location = [44.45216343349134, 11.255149841308594]
@@ -29,7 +29,7 @@ def simulate(total_time, time_delta, events):
         lower_bound = (calendary_time-calendary_time_delta).strftime("%H:%M:%S")
         upper_bound = calendary_time.strftime("%H:%M:%S")
         events_in_time_interval = event_data[(event_data["Time"] >= lower_bound) & (event_data["Time"] < upper_bound)]
-        print("t=",t, events_in_time_interval.shape)
+        #print("t=",t, events_in_time_interval.shape)
         for event in events_in_time_interval.itertuples():
             i, j = coord_provider.find_interval(event.Latitude, event.Longitude)
             if(event.Type == 'A'):
