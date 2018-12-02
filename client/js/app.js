@@ -5,6 +5,9 @@ import { randomNumber } from './utilities/MathUtils.js';
 /*
 Visualization parameters
 */
+const dataPath = "data/output.json"; 
+const cityAreaPath = "data/bologna_city_area.json"; 
+
 const randomData = false;
 var bounds = {t: 60, x: 140, y: 115}; //We will use these bounds approx in the final application {t: 1440, x: 80, y: 80} 
 var initialLocation = [44.45216343349134, 11.255149841308594];//[44.49381, 11.33875]; // Bologna is latitude=44.49381, longitude=11.33875
@@ -15,18 +18,18 @@ var locationMap = new LocationMap(bounds);
 /*
 Map related
 */
-var a = null;
 L.Map.include({
     'clearShapeLayers': function () {
         this.eachLayer(function (layer) {
-            // if it's a shape layer
-            if (!(layer instanceof L.TileLayer)) this.removeLayer(layer);
+            console.log(layer.feature);
+            // if it's a shape layer and not a map polygon
+            if (!(layer instanceof L.TileLayer) && ((layer instanceof L.Polygon) && (layer instanceof L.Rectangle))) this.removeLayer(layer);
         }, this);
     },
     'redrawShapeLayers': function () {
         this.eachLayer(function (layer) {
-            // if it's a shape layer
-            if (!(layer instanceof L.TileLayer)) {layer._redraw();}
+            // if it's a shape layer and not a map polygon
+            if (!(layer instanceof L.TileLayer) && ((layer instanceof L.Polygon) && (layer instanceof L.Rectangle))) {layer._redraw();}
         }, this);
     }
 });
@@ -34,6 +37,13 @@ L.Map.include({
 var map = L.map('mapid', {preferCanvas: true}).setView(initialLocation, 18);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(map);
 map.setZoom(14);
+fetch(cityAreaPath).then(response => response.json()).then(loadedData => {
+    L.geoJSON(loadedData, {
+        "color": "#ff7800",
+        "weight": 3,
+        "opacity": 0.65
+    }).addTo(map);
+});
 
 // population chart
 var populationBarChartContainer = document.getElementById('populationBarChart');
@@ -105,7 +115,7 @@ renderMap(map, 0, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
 
 if(!randomData){
     
-    fetch('./data/output.json').then((r)=>r.json()).then(response=>{
+    fetch(dataPath).then((r)=>r.json()).then(response=>{
         bounds = {t: response.bounds.t, y: response.bounds.y, x: response.bounds.x};
         var responseMap = response.map;
         locationMap = new LocationMap(bounds);

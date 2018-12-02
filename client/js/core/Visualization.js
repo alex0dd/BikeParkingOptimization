@@ -1,6 +1,6 @@
 import { rgbToHex } from '../utilities/ColorUtilities.js';
 // Map renderer
-export function renderMap(map, time, boundX, boundY, boundT, coordProvider, locationMap){
+export function renderMap(map, time, boundX, boundY, boundT, coordProvider, locationMap, drawGrid=false){
     var t = time < boundT ? time : boundT - 1;
     /*
     pseudocode:
@@ -11,14 +11,17 @@ export function renderMap(map, time, boundX, boundY, boundT, coordProvider, loca
     for(var i = 0; i < boundY; i++){
         for(var j = 0; j < boundX; j++){
             var population = locationMap.getPopulationAt(t, i, j);
-            if(population > 0) var colorWeight = (population/locationMap.getHighestPopulation(t))*0.9;
-            else var colorWeight = 0.0;
-            L.rectangle([coordProvider.elementAt(i, j), coordProvider.elementAt(i+1,j+1)],{
-                color: "#00000f", 
-                weight: 1.0, 
-                fillColor: "green", 
-                fillOpacity: colorWeight
-            }).bindPopup(locationMap.getPopulationAt(t, i, j)+"").addTo(map);
+            var colorWeight = 0.0;
+            if(population > 0) colorWeight = (population/locationMap.getHighestPopulation(t))*0.9;
+            // if doesn't need to draw grid, then only consider the populated area
+            if((colorWeight!=0.0 && !drawGrid) || drawGrid){
+                L.rectangle([coordProvider.elementAt(i, j), coordProvider.elementAt(i+1,j+1)],{
+                    color: "#00000f", 
+                    weight: 1.0, 
+                    fillColor: "green", 
+                    fillOpacity: colorWeight
+                }).bindPopup(locationMap.getPopulationAt(t, i, j)+"").addTo(map);
+            }
         }
     }
 }
