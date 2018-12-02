@@ -6,8 +6,8 @@ import { randomNumber } from './utilities/MathUtils.js';
 Visualization parameters
 */
 const randomData = false;
-const bounds = {t: 60, x: 30, y: 30}; //We will use these bounds approx in the final application {t: 1440, x: 80, y: 80} 
-var initialLocation = [44.484443, 11.325102];//[44.49381, 11.33875]; // Bologna is latitude=44.49381, longitude=11.33875
+const bounds = {t: 60, x: 140, y: 115}; //We will use these bounds approx in the final application {t: 1440, x: 80, y: 80} 
+var initialLocation = [44.45216343349134, 11.255149841308594];//[44.49381, 11.33875]; // Bologna is latitude=44.49381, longitude=11.33875
 var squareLength = 100; // 100 meters
 var coordProvider = new CoordinateProvider(initialLocation, squareLength);
 var locationMap = new LocationMap(bounds);
