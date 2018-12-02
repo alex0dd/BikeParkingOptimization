@@ -121,9 +121,9 @@ if(!randomData){
         locationMap = new LocationMap(bounds);
         for(var t = 0; t < bounds.t; t++){
             for(var item in responseMap[t]){
-                var value = responseMap[t][item].out_bikes;
+                var population = responseMap[t][item];
                 var yx = item.split("-");
-                locationMap.setPopulationAt(t, yx[0], yx[1], value);
+                locationMap.setPopulationAt(t, yx[0], yx[1], {inBikes: population.in_bikes, outBikes: population.out_bikes, totalBikes: population.total_bikes});
             }
         }
         /*for(var t = 0; t < bounds.t; t++)
