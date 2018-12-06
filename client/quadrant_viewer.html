@@ -1,6 +1,7 @@
 <html>
     <head>
         <link rel="stylesheet" href="lib/leaflet/leaflet.css"/>
+        <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css"/>
         <script src="lib/leaflet/leaflet.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css"/>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
@@ -8,19 +9,21 @@
         <link rel="stylesheet" href="./css/main.css"/>
     </head>
     <style>
-    #mapid { height: 900px; width: 90%;}
+    #mapid { height: 900px; }
     #populationBarChart { margin-left: -30%;}
-    .container {
-        display: grid;
-        grid-template-columns: 80% 20%;
-        grid-column-gap: 0;
-        padding: 8px;
-    }
+    .chart {height: 450px;}
     </style>
     <body>
-        <div class="container">
-            <div id="mapid"></div>
-            <div id="populationBarChart"></div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <div class="mapContainer" id="mapid"></div>
+                </div>
+                <div class="col-3">
+                    <div id="populationInBarChart" class="chart"></div>
+                    <div id="populationOutBarChart" class="chart"></div>
+                </div>
+            </div>
         </div>
         <div id="debug"></div>
         <div class="slidecontainer">

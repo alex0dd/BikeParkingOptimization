@@ -42,41 +42,42 @@ export function renderMap(map, time, boundX, boundY, boundT, coordProvider, loca
     }
 }
 
-// Population Bar Chart renderer
-export function renderPopulationChart(graph, locationMap, currentTime) {
-    var dataset = new vis.DataSet();
+// Population Bar Charts renderer
+export function renderPopulationCharts(graphIn, graphOut, locationMap, currentTime) {
+    var datasetIn = new vis.DataSet();
+    var datasetOut = new vis.DataSet();
     var bounds = locationMap.getBounds();
     for (var x = 0; x < bounds.x; x+=1) {
         for (var y = 0; y < bounds.y; y+=1) {
             var population = locationMap.getPopulationAt(currentTime, y, x);
-            var inPopulation = population.inBikes;
-            var outPopulation = population.outBikes;
-            var z = inPopulation;
-            var isOutBigger = false;
-            // if more outgoing then incoming
-            if(inPopulation < outPopulation) {
-                isOutBigger = true;
-                z = outPopulation;
-            }
-            if(z > 0){
-                // if more incoming
-                if (!isOutBigger){
-                    var colorWeight = (z/locationMap.getHighestInPopulation(currentTime))*0.9;
-                    dataset.add({x:x, y:y, z: z, style: "#"+rgbToHex(0, 255*colorWeight, 0)});
-                }
-                else{
-                    var colorWeight = (z/locationMap.getHighestOutPopulation(currentTime))*0.9;
-                    dataset.add({x:x, y:y, z: z, style: "#"+rgbToHex(255*colorWeight, 0, 0)});
-                }
+            var zIn = population.inBikes;
+            var zOut = population.outBikes;
+            // incoming
+            if(zIn > 0){
+                var colorWeight = (zIn/locationMap.getHighestInPopulation(currentTime))*0.9;
+                datasetIn.add({x:x, y:y, z: zIn, style: "#"+rgbToHex(0, 255*colorWeight, 0)});
             }
             else{
-                dataset.add({x:x, y:y, z: z, style: "#"+rgbToHex(77, 77, 77)});
+                datasetIn.add({x:x, y:y, z: zIn, style: "#"+rgbToHex(77, 77, 77)});
+            }
+            // outgoing
+            if(zOut > 0){
+                var colorWeight = (zOut/locationMap.getHighestOutPopulation(currentTime))*0.9;
+                datasetOut.add({x:x, y:y, z: zOut, style: "#"+rgbToHex(255*colorWeight, 0, 0)});
+            }
+            else{
+                datasetOut.add({x:x, y:y, z: zOut, style: "#"+rgbToHex(77, 77, 77)});
             }
         }
     }
 
-    var camera = graph ? graph.getCameraPosition() : null;
-    graph.setData(dataset);
+    var camera = graphIn ? graphIn.getCameraPosition() : null;
+    graphIn.setData(datasetIn);
+    graphOut.setData(datasetOut);
 
-    if (camera) graph.setCameraPosition(camera); // restore camera position
+    if (camera) { 
+        // restore camera position, synchronized with both charts
+        graphIn.setCameraPosition(camera);
+        graphOut.setCameraPosition(camera);
+    }
 }

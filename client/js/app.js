@@ -1,6 +1,6 @@
 import LocationMap from './models/LocationMap.js';
 import CoordinateProvider from './services/CoordinateProvider.js';
-import { renderMap, renderPopulationChart } from './core/Visualization.js';
+import { renderMap, renderPopulationCharts } from './core/Visualization.js';
 import { randomNumber } from './utilities/MathUtils.js';
 /*
 Visualization parameters
@@ -47,14 +47,15 @@ fetch(cityAreaPath).then(response => response.json()).then(loadedData => {
     }).addTo(map);
 });
 
-// population chart
-var populationBarChartContainer = document.getElementById('populationBarChart');
+// population charts
+var populationInBarChartContainer = document.getElementById('populationInBarChart');
+var populationOutBarChartContainer = document.getElementById('populationOutBarChart');
 // we create an empty initial dataset, because later we'll just update it, so it is needed to prevent empty dataset error
 var emptyDataset = new vis.DataSet();
 emptyDataset.add({x: 0, y: 0, z: 0, style: 0});
-var populationChartOptions = {
+var populationChartOptionsBase = {
     width: "100%",
-    height: '600px',
+    height: '450px',
     style: "bar-color",
     showPerspective: true,
     showGrid: true,
@@ -82,7 +83,21 @@ var populationChartOptions = {
     keepAspectRatio: true,
     verticalRatio: 0.5
 };
-var populationBarGraph = new vis.Graph3d(populationBarChartContainer, emptyDataset, populationChartOptions);
+var populationInChartOptions = Object.assign({zLabel: "In"}, populationChartOptionsBase);
+var populationOutChartOptions = Object.assign({zLabel: "Out"}, populationChartOptionsBase);
+
+populationInChartOptions.tooltip = (point)=>"Incoming population: <b>"+point.z+"</b>";
+populationOutChartOptions.tooltip = (point)=>"Outgoing population: <b>"+point.z+"</b>";
+
+var populationInBarGraph = new vis.Graph3d(populationInBarChartContainer, emptyDataset, populationInChartOptions);
+var populationOutBarGraph = new vis.Graph3d(populationOutBarChartContainer, emptyDataset, populationOutChartOptions);
+
+var syncCamera = (setter, toSet) => toSet.setCameraPosition(setter.getCameraPosition());
+
+// synchronize both cameras
+populationInBarGraph.on('cameraPositionChange', (e)=>syncCamera(populationInBarGraph, populationOutBarGraph));
+populationOutBarGraph.on('cameraPositionChange', (e)=>syncCamera(populationOutBarGraph, populationInBarGraph));
+
 if(randomData){
     // Generate random population data
     for(var t = 0; t < bounds.t; t++)
@@ -105,7 +120,7 @@ timeSlider.addEventListener('input', (e)=>{
     debugDiv.innerText = "Current time: "+newTimeOrig +"/"+(bounds.t*timeStep)+"m";
     map.clearShapeLayers();
     renderMap(map, newTimeScaled, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
-    renderPopulationChart(populationBarGraph, locationMap, newTimeScaled);
+    renderPopulationCharts(populationInBarGraph, populationOutBarGraph, locationMap, newTimeScaled);
     map.redrawShapeLayers();
 });
 
@@ -115,7 +130,6 @@ map.on('click', function(e) {
 });
 // Render initial map for t=0
 renderMap(map, 0, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
-//renderPopulationChart(populationBarGraph, locationMap, 0);
 
 if(!randomData){
     
@@ -138,6 +152,6 @@ if(!randomData){
         // update debug label
         debugDiv.innerText = "Current time: "+0+"/"+(bounds.t*timeStep)+"m"; 
         renderMap(map, 0, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
-        renderPopulationChart(populationBarGraph, locationMap, 0);
+        renderPopulationCharts(populationInBarGraph, populationOutBarGraph, locationMap, 0);
     });
 }
