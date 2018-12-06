@@ -31,10 +31,11 @@ def serialize_cell(obj):
 
 class LocationMap:
 
-    def __init__(self, bounds):
+    def __init__(self, bounds, time_delta=1):
         self.bounds = bounds
         self.map_tensor = []
         self.time_indices = []
+        self.time_delta = time_delta
 
     def add_time(self, time):
         """
@@ -57,4 +58,4 @@ class LocationMap:
         return self.map_tensor[t][new_index]
 
     def to_json(self):
-        return json.dumps({"bounds": {"t": self.bounds.t, "y": self.bounds.y, "x": self.bounds.x}, "map": self.map_tensor}, default=serialize_cell)
+        return json.dumps({"meta_data":{"time_delta":self.time_delta, "bounds": {"t": self.bounds.t, "y": self.bounds.y, "x": self.bounds.x}}, "map": self.map_tensor}, default=serialize_cell)

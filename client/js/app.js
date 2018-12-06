@@ -5,10 +5,11 @@ import { randomNumber } from './utilities/MathUtils.js';
 /*
 Visualization parameters
 */
-const dataPath = "data/output.json"; 
+const dataPath = "data/output_whole_15m.json"; 
 const cityAreaPath = "data/bologna_city_area.json"; 
 
 const randomData = false;
+var timeStep = 1; //Time step
 var bounds = {t: 60, x: 140, y: 115}; //We will use these bounds approx in the final application {t: 1440, x: 80, y: 80} 
 var initialLocation = [44.45216343349134, 11.255149841308594];//[44.49381, 11.33875]; // Bologna is latitude=44.49381, longitude=11.33875
 var squareLength = 100; // 100 meters
@@ -94,14 +95,16 @@ Components
 var debugDiv = document.getElementById('debug');
 var timeSlider = document.getElementById('timeSlider');
 timeSlider.value = 0;
+timeSlider.step = timeStep;
 timeSlider.min = 0;
 timeSlider.max = bounds.t - 1;
 timeSlider.addEventListener('input', (e)=>{
-    var newTimeValue = e.target.value;
-    debugDiv.innerText = "Current time: "+newTimeValue;
+    var newTimeOrig = e.target.value;
+    var newTimeScaled = parseInt(newTimeOrig/timeStep);
+    debugDiv.innerText = "Current time: "+newTimeOrig;
     map.clearShapeLayers();
-    renderMap(map, newTimeValue, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
-    renderPopulationChart(populationBarGraph, locationMap, newTimeValue);
+    renderMap(map, newTimeScaled, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
+    renderPopulationChart(populationBarGraph, locationMap, newTimeScaled);
     map.redrawShapeLayers();
 });
 
@@ -116,7 +119,9 @@ renderMap(map, 0, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
 if(!randomData){
     
     fetch(dataPath).then((r)=>r.json()).then(response=>{
-        bounds = {t: response.bounds.t, y: response.bounds.y, x: response.bounds.x};
+        var metaData = response.meta_data;
+        bounds = {t: metaData.bounds.t, y: metaData.bounds.y, x: metaData.bounds.x};
+        timeStep = metaData.time_delta;
         var responseMap = response.map;
         locationMap = new LocationMap(bounds);
         for(var t = 0; t < bounds.t; t++){
@@ -126,14 +131,9 @@ if(!randomData){
                 locationMap.setPopulationAt(t, yx[0], yx[1], {inBikes: population.in_bikes, outBikes: population.out_bikes, totalBikes: population.total_bikes});
             }
         }
-        /*for(var t = 0; t < bounds.t; t++)
-            for(var i = 0; i < bounds.y; i++) 
-                for(var j = 0; j < bounds.x; j++){
-                    var value = response.map[t][i][j].out_bikes;
-                    locationMap.setPopulationAt(t, i, j, value);
-                }*/
-        
-        timeSlider.max = bounds.t - 1;
+        // update slider parameters
+        timeSlider.step = timeStep;
+        timeSlider.max = bounds.t*timeStep - timeStep;
         renderMap(map, 0, bounds.x, bounds.y, bounds.t, coordProvider, locationMap);
         renderPopulationChart(populationBarGraph, locationMap, 0);
     });
