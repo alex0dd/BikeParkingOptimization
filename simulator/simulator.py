@@ -38,14 +38,20 @@ def simulate(total_time, time_delta, events):
             if(event.Type == 'A'):
                 # arrival
                 if event.ActivityId in arrivals_table:
+                    # register the entrance
                     location_map.get(rescaled_time_index, i, j).in_bikes+=1
+                    # register the transit
+                    location_map.get(rescaled_time_index, i, j).transiting_bikes+=1
                     # remove from table
                     arrivals_table.pop(event.ActivityId)
             else:
                 # departure
+                # register the exit
                 location_map.get(rescaled_time_index, i, j).out_bikes+=1
-                if location_map.get(rescaled_time_index, i, j).in_bikes - 1 >= 0:
-                    location_map.get(rescaled_time_index, i, j).in_bikes-=1
+                # if someone transiting
+                if location_map.get(rescaled_time_index, i, j).transiting_bikes - 1 >= 0:
+                    # decrement the transiting
+                    location_map.get(rescaled_time_index, i, j).transiting_bikes-=1
                 arrivals_table[event.ActivityId] = True
         t+=time_delta
         calendary_time+=calendary_time_delta
