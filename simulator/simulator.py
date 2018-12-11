@@ -5,7 +5,8 @@ import datetime
 
 DAY_MINUTES = 1440 # 60 minutes * 24 hours = 1440 minutes
 
-simulation_time = 60*24 # 24 hours
+simulation_days = 2
+simulation_time = 60*24*simulation_days # 24 hours * simulation_days
 time_delta = 15 # 15 min
 rescaled_time_bound = int(simulation_time/time_delta)
 map_bounds = LocationMapBounds(t=rescaled_time_bound, x=140, y=115)
@@ -35,7 +36,8 @@ def simulate(total_time, time_delta, events):
     location_map.add_time(t)
     while t < total_time: # check also if no more events left(we can stop then)
         time_index = int(t/time_delta)
-        events_in_time_interval = delta_groups.get_group(time_index)
+        time_group_index = int((t%DAY_MINUTES)/time_delta)
+        events_in_time_interval = delta_groups.get_group(time_group_index)
         print("t=",t, len(events_in_time_interval))
         for event in events_in_time_interval.itertuples():
             i, j = coord_provider.find_interval(event.Latitude, event.Longitude)
