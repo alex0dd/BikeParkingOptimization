@@ -33,10 +33,10 @@ parser.add_argument('--days', metavar='simulation_days', type=int, default=1, re
 parser.add_argument('--bikes', metavar='number_of_bikes', type=int, default=500000, required=False, help='number of days to simulate (default: 500000)')
 parser.add_argument('--output_file', metavar='output_file', type=str, default="output.json", required=False, help='simulation output file (default: "output.json")')
 parser.add_argument('--hide_output', action='store_true', default=False, required=False, help='hides simulation step output (default: False)')
-parser.add_argument('--placement', choices=placement_functions.keys(), default=placement_from_dataset_out, required=False, help='placement function used by the simulator (default: placement_from_dataset_out)')
+parser.add_argument('--placement', choices=placement_functions.keys(), default="placement_from_dataset_out", required=False, help='placement function used by the simulator (default: placement_from_dataset_out)')
 args = parser.parse_args()
 
-print(args)
+#print(args)
 
 DAY_MINUTES = 1440 # 60 minutes * 24 hours = 1440 minutes
 
