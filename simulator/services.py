@@ -1,5 +1,17 @@
 import math
 
+def memoize(func):
+    cache = dict()
+
+    def memoized_func(*args):
+        if args in cache:
+            return cache[args]
+        result = func(*args)
+        cache[args] = result
+        return result
+
+    return memoized_func
+
 class CoordinateProvider:
 
     def __init__(self, initialLocation, spacing):
@@ -7,6 +19,7 @@ class CoordinateProvider:
         self.spacing = spacing
         self.coef = self.spacing * 0.0000089 # meters in degrees
 
+    @memoize
     def element_at(self, i, j):
         """
         i: vertical quadrant index
@@ -20,26 +33,15 @@ class CoordinateProvider:
         return [new_lat, new_lon]
 
     def find_interval(self, lat, lon):
-        i = 0
+        i = int((lat-self.initialLocation["latitude"])/self.coef)
         j = 0
-        found_i = False
         found_j = False
-        while not found_i:
-            while not found_j:
-                element = self.element_at(i, j)
-                #print(lat, lon)
-                #print(element)
-                if (element[1] < lon):
-                    j+=1
-                else:
-                    if j-1>=0:
-                        j-=1
-                    found_j = True
+        while not found_j:
             element = self.element_at(i, j)
-            if (element[0] < lat):
-                i+=1
+            if (element[1] < lon):
+                j+=1
             else:
-                if i-1>=0:
-                    i-=1
-                found_i = True
+                if j-1>=0:
+                    j-=1
+                found_j = True
         return [i, j]

@@ -11,6 +11,10 @@ spacing = 100 # 100 meters
 initial_location = [44.45216343349134, 11.255149841308594]
 coord_provider = CoordinateProvider(initial_location, spacing)
 
+def convert(x, n_steps):
+    # 1440 is max minutes in a day
+    return int(((n_steps)*x)/1440) #+ 1
+
 def simulate(total_time, time_delta, events):
     """
     Performs a simulation for a given time with a fixed collection of events, logs and return statistics.
@@ -18,20 +22,18 @@ def simulate(total_time, time_delta, events):
     time_delta: smallest time unit
     events: collection of events
     """
+    # divide day minutes by delta
+    n = int(1440/time_delta)
+    event_data["CurrentDelta"] = event_data['MinutesSinceMidnight'].apply(lambda m: (convert(m, n)))
+    delta_groups = event_data.groupby("CurrentDelta")
+
     location_map = LocationMap(map_bounds, time_delta=time_delta)
     arrivals_table = {}
     t = time_delta
     location_map.add_time(t)
-    # date mapping
-    initial_time = event_data["Time"].min() 
-    tmp_datetime = datetime.datetime.strptime(initial_time, '%H:%M')
-    calendary_time_delta = datetime.timedelta(minutes=time_delta)
-    calendary_time = datetime.datetime(1, 1, 1, tmp_datetime.hour, tmp_datetime.minute, 0)+calendary_time_delta
     while t < total_time: # check also if no more events left(we can stop then)
         rescaled_time_index = int((t-time_delta)/time_delta)
-        lower_bound = (calendary_time-calendary_time_delta).strftime("%H:%M:%S")
-        upper_bound = calendary_time.strftime("%H:%M:%S")
-        events_in_time_interval = event_data[(event_data["Time"] >= lower_bound) & (event_data["Time"] < upper_bound)]
+        events_in_time_interval = delta_groups.get_group(int(t/time_delta))
         print("t=",t, len(events_in_time_interval))
         for event in events_in_time_interval.itertuples():
             i, j = coord_provider.find_interval(event.Latitude, event.Longitude)
@@ -54,7 +56,6 @@ def simulate(total_time, time_delta, events):
                     location_map.get(rescaled_time_index, i, j).transiting_bikes-=1
                 arrivals_table[event.ActivityId] = True
         t+=time_delta
-        calendary_time+=calendary_time_delta
         location_map.add_time(t)
     return location_map
 if __name__ == "__main__":
@@ -62,7 +63,8 @@ if __name__ == "__main__":
     event_data = event_data.sort_values(["Time", "ActivityId"])
     # remove seconds from data
     event_data["Time"] = pd.DatetimeIndex(event_data["Time"]).time
-    event_data['Time'] = event_data['Time'].apply(lambda t: t.strftime('%H:%M'))
+    event_data['Time'] = event_data['Time'].apply(lambda t: datetime.datetime.strptime(t.strftime('%H:%M'), '%H:%M'))
+    event_data["MinutesSinceMidnight"] = event_data['Time'].apply(lambda t: t.hour*60+t.minute)
     location_map = simulate(simulation_time, time_delta, event_data)
     with open('output.json', 'w') as f:
         f.write(location_map.to_json())
