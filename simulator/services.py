@@ -18,6 +18,7 @@ class CoordinateProvider:
         self.initialLocation = { "latitude": initialLocation[0], "longitude": initialLocation[1] }
         self.spacing = spacing
         self.coef = self.spacing * 0.0000089 # meters in degrees
+        self.cos_initial_lat = math.cos((self.initialLocation["latitude"]+self.coef)* 0.018)
 
     @memoize
     def element_at(self, i, j):
@@ -34,14 +35,5 @@ class CoordinateProvider:
 
     def find_interval(self, lat, lon):
         i = int((lat-self.initialLocation["latitude"])/self.coef)
-        j = 0
-        found_j = False
-        while not found_j:
-            element = self.element_at(i, j)
-            if (element[1] < lon):
-                j+=1
-            else:
-                if j-1>=0:
-                    j-=1
-                found_j = True
+        j = int(self.cos_initial_lat*(lon-self.initialLocation["longitude"])/self.coef)
         return [i, j]

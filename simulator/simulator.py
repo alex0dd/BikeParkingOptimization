@@ -7,7 +7,7 @@ import os
 
 def placement_from_dataset_out(num_bikes):
     total_bikes = num_bikes
-    usage_info = pd.read_csv(os.path.join(data_dir, "usage_percentage_out.csv"))
+    usage_info = pd.read_csv(os.path.join(data_dir, "usage_percentage.csv"))
     placements = []
     for item in usage_info.itertuples():
         # PercOut is a percentual so we need to scale it to obtain the fraction
@@ -17,7 +17,7 @@ def placement_from_dataset_out(num_bikes):
 
 def placement_from_dataset_in(num_bikes):
     total_bikes = num_bikes
-    usage_info = pd.read_csv(os.path.join(data_dir, "usage_percentage_out.csv"))
+    usage_info = pd.read_csv(os.path.join(data_dir, "usage_percentage.csv"))
     placements = []
     for item in usage_info.itertuples():
         # PercOut is a percentual so we need to scale it to obtain the fraction
