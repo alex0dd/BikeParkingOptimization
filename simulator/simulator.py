@@ -24,7 +24,7 @@ def simulate(total_time, time_delta, events):
     """
     # divide day minutes by delta
     n = int(1440/time_delta)
-    event_data["CurrentDelta"] = event_data['MinutesSinceMidnight'].apply(lambda m: (convert(m, n)))
+    event_data["CurrentDelta"] = event_data['Minutes'].apply(lambda m: (convert(m, n)))
     delta_groups = event_data.groupby("CurrentDelta")
 
     location_map = LocationMap(map_bounds, time_delta=time_delta)
@@ -59,12 +59,7 @@ def simulate(total_time, time_delta, events):
         location_map.add_time(t)
     return location_map
 if __name__ == "__main__":
-    event_data = pd.read_json('dep_arr_filtered_sorted_final_cycle.json')
-    event_data = event_data.sort_values(["Time", "ActivityId"])
-    # remove seconds from data
-    event_data["Time"] = pd.DatetimeIndex(event_data["Time"]).time
-    event_data['Time'] = event_data['Time'].apply(lambda t: datetime.datetime.strptime(t.strftime('%H:%M'), '%H:%M'))
-    event_data["MinutesSinceMidnight"] = event_data['Time'].apply(lambda t: t.hour*60+t.minute)
+    event_data = pd.read_csv("final_simulation_cycle_data.csv")
     location_map = simulate(simulation_time, time_delta, event_data)
     with open('output.json', 'w') as f:
         f.write(location_map.to_json())
