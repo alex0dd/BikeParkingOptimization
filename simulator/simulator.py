@@ -57,6 +57,9 @@ def convert(x, n_steps):
     # 1440 is max minutes in a day
     return int(((n_steps)*x)/DAY_MINUTES) #+ 1
 
+def compute_day(t):
+    return int(t/DAY_MINUTES)+1
+
 def place_initial_bikes(location_map, placement_function, num_bikes):
     placements = placement_function(num_bikes)
     for ((i, j), bikes) in placements:
@@ -78,7 +81,11 @@ def simulate(total_time, time_delta, events, simulation_parameters):
 
     location_map = LocationMap(map_bounds, time_delta=time_delta)
     arrivals_table = {}
+    prev_day = 1
+    current_day = 1
     t = 0
+    # satisfied events per day statistic
+    day_satisfied_events = 0
     location_map.add_time(t)
     # place bikes
     place_initial_bikes(location_map, simulation_parameters["placement_function"], simulation_parameters["total_bikes"])
@@ -120,10 +127,18 @@ def simulate(total_time, time_delta, events, simulation_parameters):
                     arrivals_table[event.ActivityId] = True
                     # register event satisfaction
                     current_satisfied_events+=1
+        # increase day satisfied event statistic
+        day_satisfied_events+=current_satisfied_events
         if not args.hide_output:
-            print("t={}, satisfied {} out of {} events.".format(t, current_satisfied_events, len(events_in_time_interval)))
+            print("day={}, t={}, satisfied {} out of {} events.".format(current_day, t, current_satisfied_events, len(events_in_time_interval)))
+        
+        prev_day = current_day
         t+=time_delta
         location_map.add_time(t)
+        current_day = compute_day(t)
+        if prev_day != current_day:
+            print("Day {}, satisfied a total of {} out of {} events.".format(prev_day, day_satisfied_events, len(events)))
+            day_satisfied_events = 0
         # update collected statistics
         simulation_statistics["total_events"]+=len(events_in_time_interval)
         simulation_statistics["satisfied_events"]+=current_satisfied_events
