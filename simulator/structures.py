@@ -1,4 +1,5 @@
 import json
+import numpy as np
 class LocationMapBounds:
     def __init__(self, t=0, y=0, x=0):
         self._t = t
@@ -37,6 +38,7 @@ class LocationMap:
         self.map_tensor = []
         self.time_indices = []
         self.time_delta = time_delta
+        self.current_bikes = np.zeros([bounds.y, bounds.x])
 
     def add_time(self, time):
         """
@@ -57,6 +59,21 @@ class LocationMap:
         if new_index not in self.map_tensor[t]:
             self.map_tensor[t][new_index] = LocationMapCell()
         return self.map_tensor[t][new_index]
+
+    def get_total_bikes_at(self, y, x):
+        return self.current_bikes[y][x]
+
+    def set_total_bikes_at(self, y, x, bikes):
+        """
+        NOTE: This method should be used only in the initialization phase.
+        """
+        self.current_bikes[y][x] = bikes
+
+    def decrement_total_bikes_at(self, y, x):
+        self.current_bikes[y][x]-= 1
+    
+    def increment_total_bikes_at(self, y, x):
+        self.current_bikes[y][x]+= 1
 
     def to_json(self):
         return json.dumps({"meta_data":{"time_delta":self.time_delta, "bounds": {"t": self.bounds.t, "y": self.bounds.y, "x": self.bounds.x}}, "map": self.map_tensor}, default=serialize_cell)
