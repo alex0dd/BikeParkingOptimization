@@ -60,6 +60,10 @@ class LocationMap:
             self.map_tensor[t][new_index] = LocationMapCell()
         return self.map_tensor[t][new_index]
 
+    @property
+    def total_bikes(self):
+        return int(np.sum(self.current_bikes))
+
     def get_total_bikes_at(self, y, x):
         return self.current_bikes[y][x]
 

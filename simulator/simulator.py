@@ -89,6 +89,7 @@ def simulate(total_time, time_delta, events, simulation_parameters):
     location_map.add_time(t)
     # place bikes
     place_initial_bikes(location_map, simulation_parameters["placement_function"], simulation_parameters["total_bikes"])
+    print("Placed {} bikes on the map.".format(location_map.total_bikes))
     # loop until there's simulation time left
     while t < total_time:
         time_index = int(t/time_delta)
