@@ -7,35 +7,33 @@ import datetime
 import os
 
 def random_placement(num_bikes):
-    total_bikes = num_bikes
     usage_info = pd.read_csv(os.path.join(data_dir, "usage_percentage.csv"))
+    # choose a random quadrant with a probability coming from usage data for each bike individually
     choices = np.random.choice(len(usage_info), num_bikes, p=usage_info.PercIn/100)
+    # count bikes per quadrant
     counts = np.bincount(choices)
     placements = []
     for index, item in enumerate(usage_info.itertuples()):
-        # PercOut is a percentual so we need to scale it to obtain the fraction
         if index < len(counts):
             to_place = counts[index]
             placements.append(((item.Row, item.Column), to_place))
     return placements
 
 def placement_from_dataset_out(num_bikes):
-    total_bikes = num_bikes
     usage_info = pd.read_csv(os.path.join(data_dir, "usage_percentage.csv"))
     placements = []
     for item in usage_info.itertuples():
         # PercOut is a percentual so we need to scale it to obtain the fraction
-        out = int((total_bikes*item.PercOut/100.0))
+        out = int((num_bikes*item.PercOut/100.0))
         placements.append(((item.Row, item.Column), out))
     return placements
 
 def placement_from_dataset_in(num_bikes):
-    total_bikes = num_bikes
     usage_info = pd.read_csv(os.path.join(data_dir, "usage_percentage.csv"))
     placements = []
     for item in usage_info.itertuples():
-        # PercOut is a percentual so we need to scale it to obtain the fraction
-        out = int((total_bikes*item.PercIn/100.0))
+        # PercIn is a percentual so we need to scale it to obtain the fraction
+        out = int((num_bikes*item.PercIn/100.0))
         placements.append(((item.Row, item.Column), out))
     return placements
 
