@@ -2,8 +2,22 @@ import argparse
 from services import CoordinateProvider
 from structures import LocationMap, LocationMapBounds
 import pandas as pd
+import numpy as np
 import datetime
 import os
+
+def random_placement(num_bikes):
+    total_bikes = num_bikes
+    usage_info = pd.read_csv(os.path.join(data_dir, "usage_percentage.csv"))
+    choices = np.random.choice(len(usage_info), num_bikes, p=usage_info.PercIn/100)
+    counts = np.bincount(choices)
+    placements = []
+    for index, item in enumerate(usage_info.itertuples()):
+        # PercOut is a percentual so we need to scale it to obtain the fraction
+        if index < len(counts):
+            to_place = counts[index]
+            placements.append(((item.Row, item.Column), to_place))
+    return placements
 
 def placement_from_dataset_out(num_bikes):
     total_bikes = num_bikes
@@ -25,7 +39,7 @@ def placement_from_dataset_in(num_bikes):
         placements.append(((item.Row, item.Column), out))
     return placements
 
-placement_functions = {"placement_from_dataset_in": placement_from_dataset_in, "placement_from_dataset_out": placement_from_dataset_out}
+placement_functions = {"placement_from_dataset_in": placement_from_dataset_in, "placement_from_dataset_out": placement_from_dataset_out, "random_placement": random_placement}
 
 # Parse program arguments
 parser = argparse.ArgumentParser(description='Perform a simulation for a given amount of time.')
