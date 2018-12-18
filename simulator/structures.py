@@ -21,7 +21,6 @@ class LocationMapCell:
     def __init__(self, in_bikes=0, out_bikes=0, transiting_bikes=0, total_bikes=0):
         self.in_bikes = in_bikes
         self.out_bikes = out_bikes
-        self.transiting_bikes = transiting_bikes
         self.total_bikes = total_bikes
 
 def serialize_cell(obj):

@@ -116,8 +116,6 @@ def simulate(total_time, time_delta, events, simulation_parameters):
                 if event.ActivityId in arrivals_table:
                     # register the entrance
                     location_map.get(time_index, i, j).in_bikes+=1
-                    # register the transit
-                    location_map.get(time_index, i, j).transiting_bikes+=1
                     # register the bike
                     location_map.increment_total_bikes_at(i, j)
                     # remove from table
@@ -126,10 +124,6 @@ def simulate(total_time, time_delta, events, simulation_parameters):
                     current_satisfied_events+=1
             else:
                 # departure
-                # if someone transiting
-                if location_map.get(time_index, i, j).transiting_bikes > 0:
-                    # decrement the transiting
-                    location_map.get(time_index, i, j).transiting_bikes-=1
                 # if any available bikes
                 if location_map.get_total_bikes_at(i, j) > 0:
                     # register the exit
