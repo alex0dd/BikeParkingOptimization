@@ -1,12 +1,26 @@
 import { rgbToHex } from '../utilities/ColorUtilities.js';
 
-function drawRectOnMap(map, p1, p2, color, colorWeight, tooltip){
+function drawRectOnMap(map, p1, p2, color, colorWeight, tooltip=""){
     L.rectangle([p1, p2],{
         color: "#00000f", 
         weight: 1.0, 
         fillColor: color, 
         fillOpacity: colorWeight
     }).bindPopup(tooltip).addTo(map);
+}
+
+// Parkings renderer
+export function renderParkings(map, coordProvider, parkings, color, opacity=1.0, label=""){
+    /**
+     * map: map on which the parkings will be rendered
+     * coordProvider: coordinate converter
+     * parkings: array containing squares of parkings
+     * color: color of rendered parkings
+     */
+    for(var i = 0; i < parkings.length; i++){
+        var p = parkings[i];
+        drawRectOnMap(map, coordProvider.elementAt(p.row, p.column), coordProvider.elementAt(p.row+1,p.column+1), color, opacity, label);
+    }
 }
 
 // Map renderer

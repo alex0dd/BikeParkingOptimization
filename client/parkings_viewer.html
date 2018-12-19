@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="lib/leaflet/leaflet.css"/>
+        <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css"/>
+        <script src="lib/leaflet/leaflet.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+        <script type="module" src="./js/parkings_viewer_app.js"></script>
+        <link rel="stylesheet" href="./css/main.css"/>
+    </head>
+    <style>
+    #mapid { height: 900px; }
+    #populationBarChart { margin-left: -30%;}
+    .chart {height: 450px;}
+    </style>
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <div class="mapContainer" id="mapid"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div id="debug"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
