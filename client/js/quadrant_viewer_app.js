@@ -1,11 +1,11 @@
 import LocationMap from './models/LocationMap.js';
 import CoordinateProvider from './services/CoordinateProvider.js';
-import { renderMap, renderPopulationCharts } from './core/Visualization.js';
+import { renderMap, renderParkings, renderPopulationCharts } from './core/Visualization.js';
 import { randomNumber } from './utilities/MathUtils.js';
 /*
 Visualization parameters
 */
-const dataPath = "data/output_whole_15m.json"; 
+const dataPath = "data/output_whole_30m.json"; 
 const cityAreaPath = "data/bologna_city_area.json"; 
 
 const randomData = false;
@@ -124,7 +124,7 @@ timeSlider.addEventListener('input', (e)=>{
     map.redrawShapeLayers();
 });
 
-debugDiv.innerText = "Current time: "+0;                        
+debugDiv.innerText = "Visualizing: "+dataPath;                        
 map.on('click', function(e) {
     debugDiv.innerText = "Clicked on: "+e.latlng.lat+", "+e.latlng.lng;
 });

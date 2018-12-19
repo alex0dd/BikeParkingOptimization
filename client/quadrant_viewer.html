@@ -5,7 +5,7 @@
         <script src="lib/leaflet/leaflet.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css"/>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
-        <script type="module" src="./js/app.js"></script>
+        <script type="module" src="./js/quadrant_viewer_app.js"></script>
         <link rel="stylesheet" href="./css/main.css"/>
     </head>
     <style>
@@ -24,10 +24,18 @@
                     <div id="populationOutBarChart" class="chart"></div>
                 </div>
             </div>
-        </div>
-        <div id="debug"></div>
-        <div class="slidecontainer">
-            <input id="timeSlider" class="slider" type="range" min="0" max="100" value="0">
+            <div class="row">
+                <div class="col">
+                    <div id="debug"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="slidecontainer">
+                        <input id="timeSlider" class="slider" type="range" min="0" max="100" value="0">
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
 </html>
