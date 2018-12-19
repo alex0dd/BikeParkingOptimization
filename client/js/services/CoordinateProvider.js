@@ -3,19 +3,26 @@ export default class CoordinateProvider {
         this.initialLocation = { latitude: initialLocation[0], longitude: initialLocation[1] };
         this.spacing = spacing;
         this.coef = this.spacing * 0.0000089; // meters in degrees
-        this.cosSumApprox = 1/Math.cos((this.initialLocation.latitude+this.coef)*0.018);
+        this.cosInitialLat = Math.cos((this.initialLocation.latitude+this.coef)*0.018);
     }
     elementAt(i, j) {
-        /*
-            i = vertical quadrant index
-            j = horizontal quadrant index
+        /**
+         * Returns latitude and longitude of (i, j)th square
+         * i = vertical quadrant index
+         * j = horizontal quadrant index
         */
-	/*
-    	var cosSum = 0;
-	for (var k = 0; k < j; k++)
-            cosSum += 1 / Math.cos((this.initialLocation.latitude + k * this.coef) * 0.018); // 0.018 is pi/180*/
         var new_lat = this.initialLocation.latitude + i * this.coef;
-        var new_lon = this.initialLocation.longitude + this.coef * this.cosSumApprox*j;
+        var new_lon = this.initialLocation.longitude + (this.coef *j)/this.cosInitialLat;
         return [new_lat, new_lon];
+    }
+    findSquare(lat, lon) {
+        /**
+         * Returns the square which contains the given point
+         * lat: point's latitude
+         * lon: point's longitude
+         */
+        var i = parseInt((lat-this.initialLocation.latitude)/this.coef);
+        var j = parseInt(this.cosInitialLat*(lon-this.initialLocation.longitude)/this.coef);
+        return {row: i, column: j};
     }
 };
