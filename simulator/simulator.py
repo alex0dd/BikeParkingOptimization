@@ -5,39 +5,23 @@ import pandas as pd
 import numpy as np
 import datetime
 import os
+from placements.dataset_placements import PlacementFromDataset
+from placements.random_placements import RandomDatasetPlacement, RandomUniformPlacement
 
-def random_placement(num_bikes):
-    usage_info = pd.read_csv(os.path.join(data_dir, "usage_percentage.csv"))
-    # choose a random quadrant with a probability coming from usage data for each bike individually
-    choices = np.random.choice(len(usage_info), num_bikes, p=usage_info.PercIn/100)
-    # count bikes per quadrant
-    counts = np.bincount(choices)
-    placements = []
-    for index, item in enumerate(usage_info.itertuples()):
-        if index < len(counts):
-            to_place = counts[index]
-            placements.append(((item.Row, item.Column), to_place))
-    return placements
+data_dir = "data"
+usage_info = pd.read_csv(os.path.join(data_dir, "usage_percentage.csv"))
 
-def placement_from_dataset_out(num_bikes):
-    usage_info = pd.read_csv(os.path.join(data_dir, "usage_percentage.csv"))
-    placements = []
-    for item in usage_info.itertuples():
-        # PercOut is a percentual so we need to scale it to obtain the fraction
-        out = int((num_bikes*item.PercOut/100.0))
-        placements.append(((item.Row, item.Column), out))
-    return placements
+placement_from_dataset_in = PlacementFromDataset(usage_info[["Row", "Column", "PercIn"]].rename(columns={"PercIn": "Usage"}))
+placement_from_dataset_out = PlacementFromDataset(usage_info[["Row", "Column", "PercOut"]].rename(columns={"PercOut": "Usage"}))
+random_dataset_placement = RandomDatasetPlacement(usage_info[["Row", "Column", "PercIn"]].rename(columns={"PercIn": "Usage"}))
+random_uniform_placement = RandomUniformPlacement(usage_info[["Row", "Column"]])
 
-def placement_from_dataset_in(num_bikes):
-    usage_info = pd.read_csv(os.path.join(data_dir, "usage_percentage.csv"))
-    placements = []
-    for item in usage_info.itertuples():
-        # PercIn is a percentual so we need to scale it to obtain the fraction
-        out = int((num_bikes*item.PercIn/100.0))
-        placements.append(((item.Row, item.Column), out))
-    return placements
-
-placement_functions = {"placement_from_dataset_in": placement_from_dataset_in, "placement_from_dataset_out": placement_from_dataset_out, "random_placement": random_placement}
+placement_functions = {
+    "placement_from_dataset_in": placement_from_dataset_in, 
+    "placement_from_dataset_out": placement_from_dataset_out, 
+    "random_placement": random_dataset_placement,
+    "random_uniform_placement": random_uniform_placement
+}
 
 # Parse program arguments
 parser = argparse.ArgumentParser(description='Perform a simulation for a given amount of time.')
@@ -48,12 +32,13 @@ parser.add_argument('--hide_output', action='store_true', default=False, require
 parser.add_argument('--placement', choices=placement_functions.keys(), default="placement_from_dataset_out", required=False, help='placement function used by the simulator (default: placement_from_dataset_out)')
 args = parser.parse_args()
 
-#print(args)
+
+
 
 DAY_MINUTES = 1440 # 60 minutes * 24 hours = 1440 minutes
 
 number_of_bikes = args.bikes
-placement_function = placement_functions[args.placement]
+placement_function = placement_functions[args.placement].place
 simulation_days = args.days
 simulation_time = 60*24*simulation_days # 24 hours * simulation_days
 time_delta = 15 # 15 min
@@ -62,8 +47,6 @@ map_bounds = LocationMapBounds(t=rescaled_time_bound, x=140, y=115)
 spacing = 100 # 100 meters
 initial_location = [44.45216343349134, 11.255149841308594]
 coord_provider = CoordinateProvider(initial_location, spacing)
-
-data_dir = "data"
 
 def convert(x, n_steps):
     # 1440 is max minutes in a day
