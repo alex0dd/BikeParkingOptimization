@@ -13,3 +13,7 @@ export function createTensor(t, m, n) {
 export function randomNumber(minimum, maximum){
     return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
 }
+
+export function convertInterval(value, min_a, max_a, min_b, max_b){
+    return (max_b - min_b)/(max_a - min_a) * (value - min_a) + min_b;
+}

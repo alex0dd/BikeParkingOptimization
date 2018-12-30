@@ -1,4 +1,5 @@
 import { rgbToHex } from '../utilities/ColorUtilities.js';
+import { convertInterval } from '../utilities/MathUtils.js';
 
 function drawRectOnMap(map, p1, p2, color, colorWeight, tooltip=""){
     L.rectangle([p1, p2],{
@@ -37,19 +38,20 @@ export function renderMap(map, time, boundX, boundY, boundT, coordProvider, loca
             var population = locationMap.getPopulationAt(t, i, j);
             var inPopulation = population.inBikes;
             var outPopulation = population.outBikes;
+            var moreIn = inPopulation > outPopulation;
             var colorWeightIn = 0.0;
             var colorWeightOut = 0.0;
-            if(inPopulation > 0) colorWeightIn = (inPopulation/locationMap.getHighestInPopulation(t))*0.9;
-            if(outPopulation > 0) colorWeightOut = (outPopulation/locationMap.getHighestOutPopulation(t))*0.9;
+            if(inPopulation > 0) colorWeightIn = convertInterval(inPopulation, 0, locationMap.getHighestInPopulation(t), 0.2, 0.9);
+            if(outPopulation > 0) colorWeightOut = colorWeightIn = convertInterval(outPopulation, 0, locationMap.getHighestOutPopulation(t), 0.2, 0.9);
             // if doesn't need to draw grid, then only consider the populated area
-            if((colorWeightIn!=0.0 && !drawGrid) || drawGrid){
-                drawRectOnMap(map, coordProvider.elementAt(i, j), coordProvider.elementAt(i+1,j+1), "green", colorWeightIn, 
-                "in: "+inPopulation+"\nout: "+outPopulation  
-                );
-            }
-            if((outPopulation!=0.0 && !drawGrid) || drawGrid){
-                drawRectOnMap(map, coordProvider.elementAt(i, j), coordProvider.elementAt(i+1,j+1), "red", colorWeightOut, 
-                "in: "+inPopulation+"\nout: "+outPopulation  
+            if((colorWeightIn!=0.0 && !drawGrid) || (colorWeightOut!=0.0 && !drawGrid) || drawGrid){
+                drawRectOnMap(
+                    map, 
+                    coordProvider.elementAt(i, j), 
+                    coordProvider.elementAt(i+1,j+1), 
+                    moreIn ? "green" : "red", 
+                    moreIn ? colorWeightIn : colorWeightOut, 
+                    "In: "+inPopulation+"\nOut: "+outPopulation  
                 );
             }
         }
