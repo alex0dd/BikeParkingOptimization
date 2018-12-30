@@ -49,12 +49,6 @@ map.on('click', function(e) {
     debugDiv.innerText = "Clicked on: "+e.latlng.lat+", "+e.latlng.lng;
 });
 
-const dataFiles = [
-    "data/coord_orig_parkings.json",
-    "data/usage_percentuals_70_1000_runs.json",
-    "data/usage_percentuals_240_1000_runs.json"
-];
-
 function intersection(original, simulated){
     var intersectionNumbers = {};
     for(var i = 0; i < original.length; i++)
@@ -67,9 +61,47 @@ function intersection(original, simulated){
     //return original.filter((item, index)=>intersectionNumbers[index]==simulated.length);
 }
 
+const resultsDataFilesThird = [
+    "results_data/top_50_sinks_900_bikes.json",
+    "results_data/top_50_sources_900_bikes.json"
+];
 // fetch all files together
-Promise.all(dataFiles.map(url => fetch(url).then(r => r.json()).catch((e)=>{debugDiv.innerText="Error."}))).then(data => {
-    var originalParkings = data[0].map(point=>coordProvider.findSquare(point.lat, point.lon));;
+Promise.all(resultsDataFilesThird.map(url => fetch(url).then(r => r.json()).catch((e)=>{debugDiv.innerText="Error."}))).then(data => {
+    var sinks = data[0].map(point=>{return {row: point.Row, column: point.Column}});
+    var sources = data[1].map(point=>{return {row: point.Row, column: point.Column}});
+    var instersected = intersection(sinks, [sources]);
+    renderParkings(map, coordProvider, sinks, "green", 1.0, "Top 50 Sinks");
+    renderParkings(map, coordProvider, sources, "blue", 1.0, "Top 50 Sources");
+    renderParkings(map, coordProvider, instersected, "red", 1.0, "Sink AND Source");
+})
+
+/*
+// Second result visualization: Top 240 parkings using unlimited bikes vs Top 240 parkings using limited bikes
+const resultsDataFilesSecond = [
+    "results_data/usage_percentuals_240_unlimited_bikes.json",
+    "results_data/usage_percentuals_240_100_runs_900_bikes.json"
+];
+// fetch all files together
+Promise.all(resultsDataFilesSecond.map(url => fetch(url).then(r => r.json()).catch((e)=>{debugDiv.innerText="Error."}))).then(data => {
+    var unlimitedBikes240parkings = data[0];
+    var limitedBikes240parkings = data[1];
+    var intersectedParkings = intersection(unlimitedBikes240parkings, [limitedBikes240parkings]);
+    renderParkings(map, coordProvider, unlimitedBikes240parkings, "green", 1.0, "Top Unlimited Parkings: 240");
+    renderParkings(map, coordProvider, limitedBikes240parkings, "blue", 0.6, "Top Limited Parkings: 240");
+    renderParkings(map, coordProvider, intersectedParkings, "red", 0.9, "Unlimited AND Limited Parkings");
+})
+*/
+
+/*
+// First result visualization: original parkings vs 70, 240 best parkings for 900 bikes
+const resultsDataFilesFirst = [
+    "results_data/coord_orig_parkings.json",
+    "results_data/usage_percentuals_70_100_runs_900_bikes.json",
+    "results_data/usage_percentuals_240_100_runs_900_bikes.json"
+];
+// fetch all files together
+Promise.all(resultsDataFilesFirst.map(url => fetch(url).then(r => r.json()).catch((e)=>{debugDiv.innerText="Error."}))).then(data => {
+    var originalParkings = data[0].map(point=>coordProvider.findSquare(point.lat, point.lon));
     var simulated70parkings = data[1];
     var simulated240parkings = data[2];
     var intersectedParkings = intersection(originalParkings, [simulated70parkings, simulated240parkings]);
@@ -78,17 +110,4 @@ Promise.all(dataFiles.map(url => fetch(url).then(r => r.json()).catch((e)=>{debu
     renderParkings(map, coordProvider, simulated240parkings, "grey", 0.3, "Top Parkings: 240");
     renderParkings(map, coordProvider, intersectedParkings, "red", 0.9, "Original AND Top Parkings");
 })
-/*
-fetch("data/coord_orig_parkings.json").then((r)=>r.json()).then(response=>{
-    var parkings = response.map(point=>coordProvider.findSquare(point.lat, point.lon));
-    renderParkings(map, coordProvider, parkings, "orange");
-});
-fetch("data/usage_percentuals_70.json").then((r)=>r.json()).then(response=>{
-    //var parkings = response.map(point=>coordProvider.findSquare(point.lat, point.lon));
-    renderParkings(map, coordProvider, response, "grey");
-});
-
-fetch("data/usage_percentuals_240.json").then((r)=>r.json()).then(response=>{
-    //var parkings = response.map(point=>coordProvider.findSquare(point.lat, point.lon));
-    renderParkings(map, coordProvider, response, "black");
-});*/
+*/
